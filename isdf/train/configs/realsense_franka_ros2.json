@@ -38,7 +38,7 @@
         "weight_decay": 0.012
     },
     "trainer": {
-        "steps": 20000
+        "steps": 5001
     },
     "sample": {
         "n_rays": 200,
@@ -46,8 +46,8 @@
         "n_strat_samples": 19,
         "n_surf_samples": 8,
         "_depth_range": "[0.6, 6.0] for D455, [0.3, 3.0] for D435 ",
-        "depth_range": [0.1, 2.0],
-        "dist_behind_surf": 0.1
+        "depth_range": [0.3, 3.0],
+        "dist_behind_surf": 0.01
     },
     "model": {
         "refine_poses": 0,
@@ -58,15 +58,15 @@
         "noise_kf": 0.08,
         "noise_frame": 0.04,
         "window_size": 5,
-        "hidden_layers_block": 2,
+        "hidden_layers_block": 3,
         "hidden_feature_size": 256,
-        "iters_per_kf": 60,
-        "iters_per_frame": 10,
+        "iters_per_kf": 100,
+        "iters_per_frame": 50,
         "kf_dist_th": 0.12,
         "kf_pixel_ratio": 0.65,
         "embedding": {
-            "scale_input": 0.4,
-            "n_embed_funcs": 8,
+            "scale_input": 0.04,
+            "n_embed_funcs": 10,
             "gauss_embed": 0,
             "gauss_embed_std": 11,
             "optim_embedding": 0            

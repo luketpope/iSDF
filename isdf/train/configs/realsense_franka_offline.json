@@ -1,22 +1,22 @@
 {
     "dataset": {
         "format": "realsense_franka_offline",
-        "seq_dir": "../../data/realsense_franka/0",
-        "depth_scale": 1000.0,
+        "seq_dir": "../../data/realsense_franka/my_0",
+        "depth_scale": 1.0,
         "fps": 10,
-        "camera": {
-            "w": 1280,
-            "h": 720,
-            "fx": 913.4483642578125,
-            "fy": 913.4601440429688,
-            "cx": 640.4678955078125,
-            "cy": 359.1015319824219,
-            "k1": 0.0,
-            "k2": 0.0,
-            "p1": 0.0,
-            "p2": 0.0,
-            "k3,": 0.0
-        },
+	    "camera": {
+		    "w": 640,
+		    "h": 360,
+		    "fx": 337.2,
+		    "fy": 324.73,
+		    "cx": 320,
+		    "cy": 180,
+		    "k1": -0.361,
+		    "k2": 0.133,
+		    "p1": 0.0,
+		    "p2": 0.0,
+		    "k3,": 0.0
+		},
         "n_views": 20,
         "random_views": 0
     },
