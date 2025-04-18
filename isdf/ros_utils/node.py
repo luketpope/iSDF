@@ -100,6 +100,7 @@ class iSDFFrankaNode:
     def __init__(self, queue, crop=False, ext_calib = None) -> None:
         print("iSDF Franka Node: starting", os.getpid())
         print("Waiting for first frame...")
+        print("HELLO")
 
         self.queue = queue
         self.crop = crop
