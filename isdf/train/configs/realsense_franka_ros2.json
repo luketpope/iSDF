@@ -46,7 +46,7 @@
         "n_strat_samples": 19,
         "n_surf_samples": 8,
         "_depth_range": "[0.6, 6.0] for D455, [0.3, 3.0] for D435 ",
-        "depth_range": [0.3, 3.0],
+        "depth_range": [0.1, 2.0],
         "dist_behind_surf": 0.01
     },
     "model": {
