@@ -14,8 +14,10 @@ from scipy.spatial.transform import Rotation as R
 # import needed only when running with ROS
 try:
     from isdf.ros_utils import node
-except ImportError:
-    print('Did not import ROS node.')
+except ImportError as e:
+    print("111111111111")
+    print("Hello")
+    print(f'Did not import ROS node: {e}')
 
 class ReplicaDataset(Dataset):
     def __init__(
@@ -52,7 +54,6 @@ class ReplicaDataset(Dataset):
         else:
             depth_file = os.path.join(self.root_dir, "depth" + s + ".png")
         rgb_file = os.path.join(self.root_dir, "frame" + s + self.col_ext)
-
         depth = cv2.imread(depth_file, -1)
         image = cv2.imread(rgb_file)
 
@@ -296,8 +297,8 @@ class ROSSubscriber(Dataset):
 
         if extrinsic_calib is not None:
             process = torch.multiprocessing.Process(
-                target=node.iSDFFrankaNode,
-                args=(self.queue, crop, extrinsic_calib),
+                target=node.spin_node, # Spin franka node
+                args=(self.queue, crop, extrinsic_calib),                
             ) # subscribe to franka poses 
         else:
             process = torch.multiprocessing.Process(
@@ -323,12 +324,12 @@ class ROSSubscriber(Dataset):
                 if self.depth_transform:
                     depth = self.depth_transform(depth)
 
-                    # undistort depth, using nn rather than linear interpolation
-                    img_size = (depth.shape[1], depth.shape[0])
-                    map1, map2 = cv2.initUndistortRectifyMap(
-                        self.camera_matrix, self.distortion_coeffs, np.eye(3),
-                        self.camera_matrix, img_size, cv2.CV_32FC1)
-                    depth = cv2.remap(depth, map1, map2, cv2.INTER_NEAREST)
+                    # # undistort depth, using nn rather than linear interpolation
+                    # img_size = (depth.shape[1], depth.shape[0])
+                    # map1, map2 = cv2.initUndistortRectifyMap(
+                    #     self.camera_matrix, self.distortion_coeffs, np.eye(3),
+                    #     self.camera_matrix, img_size, cv2.CV_32FC1)
+                    # depth = cv2.remap(depth, map1, map2, cv2.INTER_NEAREST)
 
                 sample = {
                     "image": image,
