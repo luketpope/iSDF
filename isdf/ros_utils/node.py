@@ -187,7 +187,9 @@ class iSDFFrankaNode(Node):
         # self.depth = depth_np
 
         try:
-            transform = self.tf_buffer.lookup_transform('fr3_link0', 'camera_depth_optical_frame', rclpy.time.Time.from_msg(rgb.header.stamp), timeout=rclpy.duration.Duration(seconds=0.1))
+            transform = self.tf_buffer.lookup_transform('fr3_link0', 'camera_depth_optical_frame', 
+                                                        rclpy.time.Time.from_msg(rgb.header.stamp), 
+                                                        timeout=rclpy.duration.Duration(seconds=0.1))
             rotation_matrix = transform_stamped_to_matrix(transform)
         except (LookupError, ExtrapolationException, TransformException) as e:
                 # self.get_logger().warn(f"Could not get transform: {e}")
