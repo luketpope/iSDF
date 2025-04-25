@@ -8,6 +8,13 @@ import torch
 import numpy as np
 import json
 import os
+
+import sys
+
+# Add correct directory as primary PYTHONPATH
+this_dir = '/home/luke/ros/humble/system/src/comp_vis_pkg/scripts/iSDF'
+sys.path.insert(0, this_dir)
+
 from datetime import datetime
 import argparse
 import cv2
@@ -39,7 +46,7 @@ def train(
         incremental=incremental,
         grid_dim = grid_dim
     )
-
+    print("AFTER ISDF TRAINER")
     # saving init--------------------------------------------------------------
     save = save_path is not None
     if save:
@@ -174,7 +181,9 @@ def train(
         view_freq = 10
         if t % view_freq == 0 and isdf_trainer.live:
             latest_vis = isdf_trainer.latest_frame_vis()
-            cv2.imshow('iSDF (frame rgb, depth), (rendered normals, depth)', latest_vis)
+            # print(latest_vis[0].shape, latest_vis[1].shape, latest_vis[2].shape)
+            latest_vis_new = np.hstack((latest_vis[0], latest_vis[1]))
+            cv2.imshow('iSDF (frame rgb, depth), (rendered normals, depth)', latest_vis_new)
             key = cv2.waitKey(5)
 
             # active keyframes vis
@@ -315,11 +324,11 @@ if __name__ == "__main__":
         update_mesh_freq = None
 
     # save
-    save = False
+    save = True
     if save:
         now = datetime.now()
         time_str = now.strftime("%m-%d-%y_%H-%M-%S")
-        save_path = "../../results/iSDF/" + time_str
+        save_path = "/home/luke/ros/humble/system/src/comp_vis_pkg/scripts/iSDF/results/iSDF/" + time_str
         os.mkdir(save_path)
     else:
         save_path = None
