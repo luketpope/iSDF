@@ -9,7 +9,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 import rclpy
-from tf2_ros import Buffer, TransformListener, LookupException, ConnectivityException, ExtrapolationException
+from tf2_ros import Buffer, TransformListener, LookupException, TransformException, ConnectivityException, ExtrapolationException
 from rclpy.node import Node
 from geometry_msgs.msg import Pose, TransformStamped
 from std_msgs.msg import Bool
@@ -20,6 +20,7 @@ from datetime import datetime
 import trimesh
 import cv2
 from cv_bridge import CvBridge
+from std_srvs.srv import Trigger
 # import imgviz
 # from time import perf_counter
 
@@ -130,6 +131,7 @@ class iSDFFrankaNode(Node):
         self.depthData = None
         self.now = datetime.now().timestamp()
 
+        self.srv = self.create_service(Trigger, 'register_view', self.register_view)
         self.sub = self.create_subscription(Image, '/rgbd_camera/image', self.image_callback, 10) 
         self.sub = self.create_subscription(Image, '/rgbd_camera/depth_image', self.depth_callback, 10)
         self.sub = self.create_subscription(Bool, '/take_images', self.take_image_callback, 10)
@@ -217,6 +219,66 @@ class iSDFFrankaNode(Node):
         except queue.Full:
             # self.get_logger().info("Fail")
             pass
+
+    def register_view(self, request, response):
+        if self.imageData:
+            self.get_logger().info("Returning Image")
+
+            rgb = self.imageData
+            depth = self.depthData
+
+            rgb_cv_image = self.bridge.imgmsg_to_cv2(rgb, desired_encoding='rgb8')
+            depth_cv_image = self.bridge.imgmsg_to_cv2(depth, desired_encoding='32FC1')
+            bgr_cv_image = cv2.cvtColor(rgb_cv_image, cv2.COLOR_RGB2BGR)
+
+            self.rgb = bgr_cv_image
+            self.depth = depth_cv_image
+
+            del rgb_cv_image, bgr_cv_image, depth_cv_image
+
+            try:
+                transform = self.tf_buffer.lookup_transform('fr3_link0', 'camera_depth_optical_frame', rclpy.time.Time.from_msg(rgb.header.stamp), timeout=rclpy.duration.Duration(seconds=0.1))
+                rotation_matrix = transform_stamped_to_matrix(transform)
+            except (LookupError, ExtrapolationException, TransformException) as e:
+                # self.get_logger().warn(f"Could not get transform: {e}")
+                response.success = False
+                response.message = "Failure in registration" 
+                return response
+
+            self.pose = rotation_matrix
+
+            del rotation_matrix
+
+            # del rgb_np, depth_np, rotation_matrix
+            # del rgb_np, rotation_matrix
+
+            if self.depth is None or self.pose is None:
+                response.success = False
+                response.message = "Failure in registration" 
+                return response
+            # self.show_rgbd(self.rgb, self.depth, 0)
+            # self.get_logger().info("Attempting to take image")
+
+            try:
+                self.queue.put(
+                    (self.rgb.copy(), self.depth.copy(), self.pose.copy()),
+                    block=False,
+                )
+                # self.get_logger().info(str(self.queue.get()))
+                # self.get_logger().info(self.queue)
+            except queue.Full:
+                # self.get_logger().info("Fail")
+                pass
+
+            response.success = True
+            response.message = "Success in registration"
+            return response
+
+        else:
+            self.get_logger().warn("No image message received yet.")
+            response.success = False
+            response.message = "Failure in registration" 
+            return response
 
     def image_callback(self, msg):
         """Waits for a single image message and returns it."""
